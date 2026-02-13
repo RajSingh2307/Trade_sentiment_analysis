@@ -1,64 +1,111 @@
-# Trading Sentiment Analysis
+## Trader Performance vs Market Sentiment Analysis
 
-This project analyzes trader performance and behavior across different market sentiments using real trading data.
+## Objective --
 
-## Overview
-The notebook explores:
-- Distribution of trader PnL across sentiments
-- Average PnL by sentiment
-- Trader activity patterns (long vs short bias)
-- Correlation between sentiment and trading direction
+This project analyzes how Bitcoin market sentiment (Fear vs Greed) relates to trader behavior and performance on Hyperliquid. The goal is to uncover behavioral patterns and derive actionable strategy insights.
 
-## Files
-- `notebook/sentiment_analysis.ipynb` → main Jupyter notebook
-- `data/raw/fear_greed_index.csv` → dataset used
-- `data/raw/historical_data.csv` → dataset used
+Datasets --
 
-## Results and Analysis
+Bitcoin Fear & Greed Index
 
-This analysis explores the relationship between trader performance, market sentiment (using the Fear-Greed Index), and the factors that predict profitability.
+Columns: Date, Classification
 
-### 1. Exploratory Data Analysis (EDA)
+Daily sentiment label (Fear / Greed / Extreme variants)
 
-The first four charts dig into the behaviors and outcomes of traders based on the prevailing market sentiment.
+Hyperliquid Historical Trader Data
 
-#### Graph 1: Distribution of Fear-Greed Scores
-<img width="699" height="396" alt="image" src="https://github.com/user-attachments/assets/2b3c4e6c-f6fc-4880-bcb9-4206042be161" />
+Includes: account, execution price, size, side, timestamp, closed PnL, etc.
 
-> **Insight:** The market's mood isn't a simple 50/50 split. There's a massive, dominant spike in the 'Greed' territory (around the 75-point mark), which is far larger than the smaller clusters in the 'Fear' zone. This suggests the market spends a substantial amount of its time in a 'Greed' state.
+Both datasets were aligned at daily level using timestamp conversion and date normalization.
 
-#### Graph 2: Average Trader PnL by Market Sentiment
-<img width="699" height="473" alt="image" src="https://github.com/user-attachments/assets/b9017690-7c23-42f6-9091-2d150b632c57" />
+## Methodology--
 
-> **Insight:** Profitability (PnL) is highest during 'Extreme Greed' and lowest during 'Extreme Fear.' Interestingly, the relationship isn't a perfect climb; PnL during 'Fear' is slightly *lower* than during 'Neutral' periods. The most significant profit jumps occur at the absolute extremes of sentiment.
+1. Data Preparation
 
-#### Graph 3: Average Trader Win Rate by Market Sentiment
-<img width="703" height="473" alt="image" src="https://github.com/user-attachments/assets/79e118e5-c9c6-4026-a0f7-f8c8224ae8f4" />
+Converted timestamps to datetime format
 
+Created daily date column
 
-> **Insight:** Win rate doesn't perfectly mirror profitability. While 'Extreme Greed' has the highest win rate (around 38%) and 'Extreme Fear' the lowest (around 33%), the other three categories ('Fear,' 'Greed,' and 'Neutral') are all tightly clustered together in the middle.
+Merged trader data with sentiment data
 
-#### Graph 4: Trade Direction Preference across Sentiments
-<img width="699" height="562" alt="image" src="https://github.com/user-attachments/assets/1dc3fa42-35aa-49ca-9d71-c57a462d45d1" />
+Verified overlapping date ranges
 
+Checked missing values and alignment correctness
 
-> **Insight:** This is the most surprising finding. The data shows that 'Short' positions (yellow bar) are dominant in *every single sentiment category*. This specific group of traders has an overwhelming and persistent bearish bias, shorting the market even during 'Extreme Greed.'
+2. Feature Engineering
 
----
+Daily account-level metrics were created:
 
-### 2. Machine Learning Model Results
+Daily PnL
 
-A model was trained to predict profitability based on these and other factors.
+Win rate
 
-#### Model Summary
-* **Accuracy:** 96%
+Trade frequency
 
-#### Feature Importance
-1.  **Win rate:** (0.89 importance)
-2.  **Avg trade size:** (0.07 importance)
-3.  **Sentiment score:** (0.03 importance)
+Average trade size (USD)
 
-#### Interpretation
-What this tells us is that **'Win rate' is by far the most important factor** in predicting profitability. The other features, 'Average trade size' and 'Sentiment score,' are basically just footnotes by comparison.
+Long/Short activity
 
-That said, the fact that 'Sentiment score' is in the top three at all (even at a tiny 0.03) is interesting. It means that while winning or losing is what *really* matters, the market's overall emotional state still has a small, subtle influence on the outcome.
+3. Sentiment-Based Analysis
+
+Compared Fear vs Greed regimes using:
+
+Mean & median daily PnL
+
+Win rate
+
+Trade frequency
+
+PnL volatility
+
+4. Trader Segmentation
+
+Accounts were segmented into:
+
+Frequent vs Infrequent traders
+
+Consistent Winners vs Others
+
+Performance was analyzed across sentiment regimes.
+
+5. Predictive Modeling (Bonus)
+
+Built a Logistic Regression model to predict next-day profitability using:
+
+Sentiment
+
+Trade count
+
+Win rate
+
+Average trade size
+
+## Model accuracy: 61% (above random baseline).
+
+## Key Insights
+
+Traders become more aggressive during Fear (higher trade count and position size), but win rate remains stable — suggesting volatility-driven behavior rather than improved accuracy.
+
+Frequent traders outperform during Fear periods, while infrequent traders sometimes perform better during Greed.
+
+Win rate alone does not guarantee higher profitability — trade frequency and risk exposure play a stronger role.
+
+Behavioral features (trade count, win rate) have stronger predictive power than sentiment alone.
+
+## Strategy Recommendations
+
+Volatility-Adaptive Activity
+Increase trading activity selectively during Fear periods for historically consistent accounts.
+
+Behavior-Driven Risk Allocation
+Use trade frequency and win rate as capital allocation signals rather than relying solely on sentiment indicators.
+
+## How to Run --
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Open and run:
+
+notebooks/trader_sentiment_analysis.ipynb
